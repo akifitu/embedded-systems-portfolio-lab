@@ -18,6 +18,7 @@ problems that show up in production teams.
 - Power-fail-safe persistence through a wear-aware flash journal
 - Low-power duty cycling and energy budgeting through a harvesting node controller
 - Industrial protocol handling through a Modbus RTU field device
+- Firmware measurement and device identity proof through a secure attestation node
 - Repeatability through `make test` and a GitHub Actions CI pipeline
 
 ## System Map
@@ -31,6 +32,7 @@ flowchart LR
     Host --> RFJ[Resilient Flash Journal]
     Host --> EHN[Energy Harvesting Node]
     Host --> MB[Modbus RTU Field Node]
+    Host --> SAN[Secure Attestation Node]
     BMS --> Safety[Fault Detection and SoC]
     OTA --> Reliability[CRC32, Trial Boot, Rollback]
     CAN --> VehicleBus[Periodic and Fault CAN Frames]
@@ -38,6 +40,7 @@ flowchart LR
     RFJ --> Persistence[Recovery Scan and Wear Tracking]
     EHN --> Power[Task Selection and Deep Sleep]
     MB --> Industrial[Register Map and Exception Frames]
+    SAN --> Trust[Measurement Check and HMAC Token]
 ```
 
 ## Projects
@@ -51,6 +54,7 @@ flowchart LR
 | `resilient-flash-journal` | Crash-safe event persistence, replay, wear tracking | `make run-journal` | [Architecture](projects/resilient-flash-journal/docs/ARCHITECTURE.md) |
 | `energy-harvesting-node` | Energy budget, task gating, brownout-safe duty cycling | `make run-power` | [Architecture](projects/energy-harvesting-node/docs/ARCHITECTURE.md) |
 | `modbus-rtu-field-node` | Register map, CRC, Modbus function handling | `make run-modbus` | [Architecture](projects/modbus-rtu-field-node/docs/ARCHITECTURE.md) |
+| `secure-attestation-node` | SHA-256 measurement, HMAC challenge-response, replay guard | `make run-attest` | [Architecture](projects/secure-attestation-node/docs/ARCHITECTURE.md) |
 
 ## Recorded Demo Snapshots
 
@@ -126,6 +130,15 @@ rsp3 11 03 04 00 41 00 19 7A 2C
 rsp4 11 93 01 8C F5
 ```
 
+### Secure Attestation Node
+
+```text
+phase=golden boot=YES status=OK counter=41 token=f90d4a7232d03ec661a92da43581e5f8
+phase=replay_guard boot=YES status=STALE_CHALLENGE counter=41 token=BLOCKED
+phase=trusted_update boot=YES status=OK counter=42 token=4fc3bda9798b53048f171e8650cfbc19
+phase=tampered boot=NO status=MEASUREMENT_MISMATCH counter=42 token=BLOCKED
+```
+
 ## Build
 
 Build and test everything:
@@ -145,6 +158,7 @@ make run-motor
 make run-journal
 make run-power
 make run-modbus
+make run-attest
 ```
 
 ## Why This Set Works on GitHub
@@ -162,6 +176,7 @@ make run-modbus
 - Port the flash journal to real NOR/QSPI flash with brownout-triggered flush
 - Port the harvesting node to a solar charger + ADC coulomb counter board
 - Port the Modbus field node to RS-485 transceivers with UART DMA
+- Port the secure attestation node to a secure element or TrustZone-backed key store
 
 ## References
 

@@ -5,9 +5,10 @@ PROJECTS := \
 	projects/motor-condition-monitor \
 	projects/resilient-flash-journal \
 	projects/energy-harvesting-node \
-	projects/modbus-rtu-field-node
+	projects/modbus-rtu-field-node \
+	projects/secure-attestation-node
 
-.PHONY: all test clean run-bms run-ota run-can run-motor run-journal run-power run-modbus
+.PHONY: all test clean run-bms run-ota run-can run-motor run-journal run-power run-modbus run-attest
 
 all:
 	@for project in $(PROJECTS); do $(MAKE) -C $$project all; done
@@ -38,3 +39,6 @@ run-power:
 
 run-modbus:
 	@$(MAKE) -C projects/modbus-rtu-field-node run
+
+run-attest:
+	@$(MAKE) -C projects/secure-attestation-node run
