@@ -6,6 +6,7 @@
 - Add a fourth diagnostics-oriented project with signal-window processing
 - Add a fifth reliability-oriented project for power-fail-safe persistence
 - Add a sixth low-power project for energy-aware duty cycling
+- Add a seventh industrial protocol project with RTU framing and register maps
 - Add deterministic demos and unit tests
 - Keep dependencies near zero
 

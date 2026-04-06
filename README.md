@@ -17,6 +17,7 @@ problems that show up in production teams.
 - Embedded diagnostics and fixed-point friendly DSP through a motor monitor
 - Power-fail-safe persistence through a wear-aware flash journal
 - Low-power duty cycling and energy budgeting through a harvesting node controller
+- Industrial protocol handling through a Modbus RTU field device
 - Repeatability through `make test` and a GitHub Actions CI pipeline
 
 ## System Map
@@ -29,12 +30,14 @@ flowchart LR
     Host --> MCM[Motor Condition Monitor]
     Host --> RFJ[Resilient Flash Journal]
     Host --> EHN[Energy Harvesting Node]
+    Host --> MB[Modbus RTU Field Node]
     BMS --> Safety[Fault Detection and SoC]
     OTA --> Reliability[CRC32, Trial Boot, Rollback]
     CAN --> VehicleBus[Periodic and Fault CAN Frames]
     MCM --> Predictive[Window Features and Fault Events]
     RFJ --> Persistence[Recovery Scan and Wear Tracking]
     EHN --> Power[Task Selection and Deep Sleep]
+    MB --> Industrial[Register Map and Exception Frames]
 ```
 
 ## Projects
@@ -47,6 +50,7 @@ flowchart LR
 | `motor-condition-monitor` | Windowed vibration analysis, fault classification, event log | `make run-motor` | [Architecture](projects/motor-condition-monitor/docs/ARCHITECTURE.md) |
 | `resilient-flash-journal` | Crash-safe event persistence, replay, wear tracking | `make run-journal` | [Architecture](projects/resilient-flash-journal/docs/ARCHITECTURE.md) |
 | `energy-harvesting-node` | Energy budget, task gating, brownout-safe duty cycling | `make run-power` | [Architecture](projects/energy-harvesting-node/docs/ARCHITECTURE.md) |
+| `modbus-rtu-field-node` | Register map, CRC, Modbus function handling | `make run-modbus` | [Architecture](projects/modbus-rtu-field-node/docs/ARCHITECTURE.md) |
 
 ## Recorded Demo Snapshots
 
@@ -110,6 +114,18 @@ phase=brownout mode=SURVIVAL action=DEEP_SLEEP battery=1816mWh backlog=4 reserve
 phase=night-recovery mode=BALANCED action=TX battery=4171mWh backlog=3 reserve=NO wake=5s
 ```
 
+### Modbus RTU Field Node
+
+```text
+req1 11 03 00 00 00 04 46 99
+rsp1 11 03 08 09 29 00 18 00 3C 00 02 D8 70
+req2 11 06 00 11 00 19 1A 95
+rsp2 11 06 00 11 00 19 1A 95
+req3 11 03 00 10 00 02 C7 5E
+rsp3 11 03 04 00 41 00 19 7A 2C
+rsp4 11 93 01 8C F5
+```
+
 ## Build
 
 Build and test everything:
@@ -128,6 +144,7 @@ make run-can
 make run-motor
 make run-journal
 make run-power
+make run-modbus
 ```
 
 ## Why This Set Works on GitHub
@@ -144,6 +161,7 @@ make run-power
 - Port the motor monitor to an accelerometer + DMA ADC capture chain on STM32
 - Port the flash journal to real NOR/QSPI flash with brownout-triggered flush
 - Port the harvesting node to a solar charger + ADC coulomb counter board
+- Port the Modbus field node to RS-485 transceivers with UART DMA
 
 ## References
 
