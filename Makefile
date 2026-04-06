@@ -7,9 +7,10 @@ PROJECTS := \
 	projects/energy-harvesting-node \
 	projects/modbus-rtu-field-node \
 	projects/secure-attestation-node \
-	projects/rtos-scheduler-lab
+	projects/rtos-scheduler-lab \
+	projects/imu-attitude-estimator
 
-.PHONY: all test clean run-bms run-ota run-can run-motor run-journal run-power run-modbus run-attest run-rtos
+.PHONY: all test clean run-bms run-ota run-can run-motor run-journal run-power run-modbus run-attest run-rtos run-imu
 
 all:
 	@for project in $(PROJECTS); do $(MAKE) -C $$project all; done
@@ -46,3 +47,6 @@ run-attest:
 
 run-rtos:
 	@$(MAKE) -C projects/rtos-scheduler-lab run
+
+run-imu:
+	@$(MAKE) -C projects/imu-attitude-estimator run

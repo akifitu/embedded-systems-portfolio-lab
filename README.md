@@ -20,6 +20,7 @@ problems that show up in production teams.
 - Industrial protocol handling through a Modbus RTU field device
 - Firmware measurement and device identity proof through a secure attestation node
 - Fixed-priority real-time scheduling through an RTOS scheduler laboratory
+- IMU sensor fusion and motion-state estimation through an attitude estimator
 - Repeatability through `make test` and a GitHub Actions CI pipeline
 
 ## System Map
@@ -35,6 +36,7 @@ flowchart LR
     Host --> MB[Modbus RTU Field Node]
     Host --> SAN[Secure Attestation Node]
     Host --> RTOS[RTOS Scheduler Lab]
+    Host --> IMU[IMU Attitude Estimator]
     BMS --> Safety[Fault Detection and SoC]
     OTA --> Reliability[CRC32, Trial Boot, Rollback]
     CAN --> VehicleBus[Periodic and Fault CAN Frames]
@@ -44,6 +46,7 @@ flowchart LR
     MB --> Industrial[Register Map and Exception Frames]
     SAN --> Trust[Measurement Check and HMAC Token]
     RTOS --> Timing[Priority Scheduling and Watchdog]
+    IMU --> Fusion[Complementary Filter and Motion State]
 ```
 
 ## Projects
@@ -59,6 +62,7 @@ flowchart LR
 | `modbus-rtu-field-node` | Register map, CRC, Modbus function handling | `make run-modbus` | [Architecture](projects/modbus-rtu-field-node/docs/ARCHITECTURE.md) |
 | `secure-attestation-node` | SHA-256 measurement, HMAC challenge-response, replay guard | `make run-attest` | [Architecture](projects/secure-attestation-node/docs/ARCHITECTURE.md) |
 | `rtos-scheduler-lab` | Fixed-priority scheduling, deadline miss, watchdog | `make run-rtos` | [Architecture](projects/rtos-scheduler-lab/docs/ARCHITECTURE.md) |
+| `imu-attitude-estimator` | Complementary filter, tilt estimation, motion states | `make run-imu` | [Architecture](projects/imu-attitude-estimator/docs/ARCHITECTURE.md) |
 
 ## Recorded Demo Snapshots
 
@@ -152,6 +156,16 @@ phase=sensor_stall idle=0 misses=14 watchdog=TRIPPED starved=control last=sensor
 phase=recovery idle=22 misses=0 watchdog=OK starved=none last=control
 ```
 
+### IMU Attitude Estimator
+
+```text
+phase=level roll=0.0 pitch=0.0 accel_norm=1.00 state=STABLE confidence=96
+phase=tilt roll=0.0 pitch=28.6 accel_norm=1.00 state=TRACKING confidence=96
+phase=vibration roll=18.9 pitch=22.0 accel_norm=1.19 state=VIBRATION confidence=63
+phase=freefall roll=2.8 pitch=2.4 accel_norm=0.09 state=FREEFALL confidence=10
+phase=recovery roll=0.6 pitch=4.0 accel_norm=1.00 state=TRACKING confidence=96
+```
+
 ## Build
 
 Build and test everything:
@@ -173,6 +187,7 @@ make run-power
 make run-modbus
 make run-attest
 make run-rtos
+make run-imu
 ```
 
 ## Why This Set Works on GitHub
@@ -192,6 +207,7 @@ make run-rtos
 - Port the Modbus field node to RS-485 transceivers with UART DMA
 - Port the secure attestation node to a secure element or TrustZone-backed key store
 - Port the RTOS lab to FreeRTOS or Zephyr task traces on real hardware
+- Port the IMU estimator to an MPU6050 or BMI270 SPI/I2C driver stack
 
 ## References
 

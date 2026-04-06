@@ -9,6 +9,7 @@
 - Add a seventh industrial protocol project with RTU framing and register maps
 - Add an eighth security-oriented project with firmware measurement and attestation
 - Add a ninth real-time scheduling project with deadline and watchdog behavior
+- Add a tenth sensor-fusion project with IMU attitude estimation
 - Add deterministic demos and unit tests
 - Keep dependencies near zero
 
