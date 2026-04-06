@@ -14,6 +14,7 @@ problems that show up in production teams.
 - Safety and control logic through a battery-management state machine
 - Reliability and upgrade strategy through an A/B OTA bootloader model
 - Bus communication literacy through a CAN telemetry scheduler
+- Embedded diagnostics and fixed-point friendly DSP through a motor monitor
 - Repeatability through `make test` and a GitHub Actions CI pipeline
 
 ## System Map
@@ -23,9 +24,11 @@ flowchart LR
     Host[Host Build and Tests] --> BMS[Smart BMS Firmware]
     Host --> OTA[OTA Bootloader Simulator]
     Host --> CAN[CAN Telemetry Node]
+    Host --> MCM[Motor Condition Monitor]
     BMS --> Safety[Fault Detection and SoC]
     OTA --> Reliability[CRC32, Trial Boot, Rollback]
     CAN --> VehicleBus[Periodic and Fault CAN Frames]
+    MCM --> Predictive[Window Features and Fault Events]
 ```
 
 ## Projects
@@ -35,6 +38,7 @@ flowchart LR
 | `smart-bms-firmware` | State machine, balancing, faults, SoC | `make run-bms` | [Architecture](projects/smart-bms-firmware/docs/ARCHITECTURE.md) |
 | `ota-bootloader-simulator` | A/B staging, CRC32, confirm, rollback | `make run-ota` | [Architecture](projects/ota-bootloader-simulator/docs/ARCHITECTURE.md) |
 | `can-telemetry-node` | CAN scheduling, fault priority, frame packing | `make run-can` | [Architecture](projects/can-telemetry-node/docs/ARCHITECTURE.md) |
+| `motor-condition-monitor` | Windowed vibration analysis, fault classification, event log | `make run-motor` | [Architecture](projects/motor-condition-monitor/docs/ARCHITECTURE.md) |
 
 ## Recorded Demo Snapshots
 
@@ -70,6 +74,14 @@ tick=4 emitted=2
   vcan0 180 [6] C0 12 28 00 CD 02 00 00
 ```
 
+### Motor Condition Monitor
+
+```text
+phase=imbalance fault=IMBALANCE sev=WARNING rms=636 p2p=1800 jerk=217 current=5200 temp=38.0C events=1
+phase=bearing fault=BEARING_WEAR sev=WARNING rms=740 p2p=2300 jerk=1262 current=5600 temp=41.0C events=2
+phase=stall fault=STALL sev=CRITICAL rms=39 p2p=120 jerk=18 current=9800 temp=44.0C events=3
+```
+
 ## Build
 
 Build and test everything:
@@ -85,6 +97,7 @@ Run project demos:
 make run-bms
 make run-ota
 make run-can
+make run-motor
 ```
 
 ## Why This Set Works on GitHub
@@ -98,6 +111,7 @@ make run-can
 - Port the BMS project to STM32 or ESP32 with ADC, GPIO, and contactor control
 - Port the OTA simulator to Zephyr or MCUboot integration tests
 - Bridge the CAN node to Linux `vcan` or a real MCP2515 transceiver
+- Port the motor monitor to an accelerometer + DMA ADC capture chain on STM32
 
 ## References
 

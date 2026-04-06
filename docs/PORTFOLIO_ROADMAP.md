@@ -3,6 +3,7 @@
 ## Phase 1
 
 - Establish three host-buildable embedded projects
+- Add a fourth diagnostics-oriented project with signal-window processing
 - Add deterministic demos and unit tests
 - Keep dependencies near zero
 
@@ -27,4 +28,3 @@ By the end of phase 3, the portfolio should show:
 - Safety and reliability thinking
 - Communication protocol literacy
 - A migration path from simulation to physical boards
-
