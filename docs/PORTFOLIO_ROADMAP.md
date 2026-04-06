@@ -14,6 +14,7 @@
 - Add a twelfth USB-C power-negotiation project with sink policy control
 - Add a thirteenth motion-control project with homing and trapezoidal planning
 - Add a fourteenth motor-drive project with sensorless BLDC startup and lock detection
+- Add a fifteenth board-bringup project with multi-rail sequencing and power-good supervision
 - Add deterministic demos and unit tests
 - Keep dependencies near zero
 

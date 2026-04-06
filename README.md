@@ -25,6 +25,7 @@ problems that show up in production teams.
 - USB-C power negotiation and safe fallback through a USB PD sink controller
 - Motion control through a stepper homing and trapezoidal trajectory planner
 - Motor-drive startup logic through a sensorless BLDC commutation controller
+- Board bring-up and rail supervision through a multi-rail power sequencer
 - Repeatability through `make test` and a GitHub Actions CI pipeline
 
 ## System Map
@@ -45,6 +46,7 @@ flowchart LR
     Host --> PD[USB PD Sink Controller]
     Host --> SMP[Stepper Motion Planner]
     Host --> BLDC[Sensorless BLDC Startup]
+    Host --> PSEQ[Multi-Rail Power Sequencer]
     BMS --> Safety[Fault Detection and SoC]
     OTA --> Reliability[CRC32, Trial Boot, Rollback]
     CAN --> VehicleBus[Periodic and Fault CAN Frames]
@@ -59,6 +61,7 @@ flowchart LR
     PD --> Negotiation[PDO Selection and Fault Fallback]
     SMP --> Motion[Homing, Limits, and Trapezoidal Moves]
     BLDC --> Drive[Six-Step Startup and BEMF Lock]
+    PSEQ --> BoardPower[Rail Order, PG Supervision, and Retry]
 ```
 
 ## Projects
@@ -79,6 +82,7 @@ flowchart LR
 | `usb-pd-sink-controller` | USB PD PDO selection, derating, retries, brownout fallback | `make run-pd` | [Architecture](projects/usb-pd-sink-controller/docs/ARCHITECTURE.md) |
 | `stepper-motion-planner` | Homing, trapezoidal move planning, limit and stall faults | `make run-stepper` | [Architecture](projects/stepper-motion-planner/docs/ARCHITECTURE.md) |
 | `sensorless-bldc-startup` | Six-step commutation, open-loop ramp, back-EMF lock and faults | `make run-bldc` | [Architecture](projects/sensorless-bldc-startup/docs/ARCHITECTURE.md) |
+| `multi-rail-power-sequencer` | Rail ordering, power-good supervision, retries, brownout faults | `make run-sequencer` | [Architecture](projects/multi-rail-power-sequencer/docs/ARCHITECTURE.md) |
 
 ## Recorded Demo Snapshots
 
@@ -226,6 +230,18 @@ phase=overcurrent state=FAULT sector=S6 duty=0 period=0us rpm=0 lock=LOST faults
 phase=no_lock state=FAULT sector=S6 duty=0 period=0us rpm=0 lock=LOST faults=no_lock
 ```
 
+### Multi-Rail Power Sequencer
+
+```text
+phase=boot_start state=STARTUP rail=CORE_1V0 mask=0x1 retries=0 progress=0 faults=none
+phase=io_wait state=STARTUP rail=IO_1V8 mask=0x3 retries=0 progress=25 faults=none
+phase=stable state=STABLE rail=NONE mask=0xF retries=0 progress=100 faults=none
+phase=shutdown_complete state=IDLE rail=NONE mask=0x0 retries=0 progress=0 faults=none
+phase=pg_timeout_retry state=RETRY_WAIT rail=CORE_1V0 mask=0x0 retries=1 progress=0 faults=pg_timeout
+phase=recovered state=STABLE rail=NONE mask=0xF retries=1 progress=100 faults=none
+phase=brownout_fault state=FAULT rail=NONE mask=0x0 retries=1 progress=100 faults=brownout
+```
+
 ## Build
 
 Build and test everything:
@@ -252,6 +268,7 @@ make run-reflow
 make run-pd
 make run-stepper
 make run-bldc
+make run-sequencer
 ```
 
 ## Why This Set Works on GitHub
@@ -276,6 +293,7 @@ make run-bldc
 - Port the USB PD sink controller to an STM32, FUSB302 or STUSB4500, and real power-path telemetry
 - Port the stepper planner to an STM32 or RP2040 with TMC2209/A4988 drivers and real limit switches
 - Port the BLDC startup controller to an STM32 with timer PWM, comparator-based zero-cross sensing, and gate drivers
+- Port the power sequencer to an STM32 supervisor MCU with PG GPIOs, PMIC enables, and brownout ADC monitoring
 
 ## References
 
