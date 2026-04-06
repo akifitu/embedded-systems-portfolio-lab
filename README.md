@@ -16,6 +16,7 @@ problems that show up in production teams.
 - Bus communication literacy through a CAN telemetry scheduler
 - Embedded diagnostics and fixed-point friendly DSP through a motor monitor
 - Power-fail-safe persistence through a wear-aware flash journal
+- Low-power duty cycling and energy budgeting through a harvesting node controller
 - Repeatability through `make test` and a GitHub Actions CI pipeline
 
 ## System Map
@@ -27,11 +28,13 @@ flowchart LR
     Host --> CAN[CAN Telemetry Node]
     Host --> MCM[Motor Condition Monitor]
     Host --> RFJ[Resilient Flash Journal]
+    Host --> EHN[Energy Harvesting Node]
     BMS --> Safety[Fault Detection and SoC]
     OTA --> Reliability[CRC32, Trial Boot, Rollback]
     CAN --> VehicleBus[Periodic and Fault CAN Frames]
     MCM --> Predictive[Window Features and Fault Events]
     RFJ --> Persistence[Recovery Scan and Wear Tracking]
+    EHN --> Power[Task Selection and Deep Sleep]
 ```
 
 ## Projects
@@ -43,6 +46,7 @@ flowchart LR
 | `can-telemetry-node` | CAN scheduling, fault priority, frame packing | `make run-can` | [Architecture](projects/can-telemetry-node/docs/ARCHITECTURE.md) |
 | `motor-condition-monitor` | Windowed vibration analysis, fault classification, event log | `make run-motor` | [Architecture](projects/motor-condition-monitor/docs/ARCHITECTURE.md) |
 | `resilient-flash-journal` | Crash-safe event persistence, replay, wear tracking | `make run-journal` | [Architecture](projects/resilient-flash-journal/docs/ARCHITECTURE.md) |
+| `energy-harvesting-node` | Energy budget, task gating, brownout-safe duty cycling | `make run-power` | [Architecture](projects/energy-harvesting-node/docs/ARCHITECTURE.md) |
 
 ## Recorded Demo Snapshots
 
@@ -96,6 +100,16 @@ tail seq=10 type=POWER_FAIL sev=CRITICAL value=1
 tail seq=11 type=CONFIG_CHANGE sev=INFO value=7
 ```
 
+### Energy Harvesting Node
+
+```text
+phase=dawn mode=BALANCED action=SAMPLE battery=5042mWh backlog=1 reserve=NO wake=15s
+phase=sunny mode=PERFORMANCE action=TX battery=5861mWh backlog=0 reserve=NO wake=5s
+phase=cloud mode=BALANCED action=SLEEP battery=5691mWh backlog=3 reserve=NO wake=20s
+phase=brownout mode=SURVIVAL action=DEEP_SLEEP battery=1816mWh backlog=4 reserve=YES wake=60s
+phase=night-recovery mode=BALANCED action=TX battery=4171mWh backlog=3 reserve=NO wake=5s
+```
+
 ## Build
 
 Build and test everything:
@@ -113,6 +127,7 @@ make run-ota
 make run-can
 make run-motor
 make run-journal
+make run-power
 ```
 
 ## Why This Set Works on GitHub
@@ -128,6 +143,7 @@ make run-journal
 - Bridge the CAN node to Linux `vcan` or a real MCP2515 transceiver
 - Port the motor monitor to an accelerometer + DMA ADC capture chain on STM32
 - Port the flash journal to real NOR/QSPI flash with brownout-triggered flush
+- Port the harvesting node to a solar charger + ADC coulomb counter board
 
 ## References
 

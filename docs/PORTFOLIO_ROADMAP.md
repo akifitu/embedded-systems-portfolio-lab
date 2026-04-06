@@ -5,6 +5,7 @@
 - Establish three host-buildable embedded projects
 - Add a fourth diagnostics-oriented project with signal-window processing
 - Add a fifth reliability-oriented project for power-fail-safe persistence
+- Add a sixth low-power project for energy-aware duty cycling
 - Add deterministic demos and unit tests
 - Keep dependencies near zero
 

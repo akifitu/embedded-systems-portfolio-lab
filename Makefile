@@ -3,9 +3,10 @@ PROJECTS := \
 	projects/ota-bootloader-simulator \
 	projects/can-telemetry-node \
 	projects/motor-condition-monitor \
-	projects/resilient-flash-journal
+	projects/resilient-flash-journal \
+	projects/energy-harvesting-node
 
-.PHONY: all test clean run-bms run-ota run-can run-motor run-journal
+.PHONY: all test clean run-bms run-ota run-can run-motor run-journal run-power
 
 all:
 	@for project in $(PROJECTS); do $(MAKE) -C $$project all; done
@@ -30,3 +31,6 @@ run-motor:
 
 run-journal:
 	@$(MAKE) -C projects/resilient-flash-journal run
+
+run-power:
+	@$(MAKE) -C projects/energy-harvesting-node run
