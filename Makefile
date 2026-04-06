@@ -2,9 +2,10 @@ PROJECTS := \
 	projects/smart-bms-firmware \
 	projects/ota-bootloader-simulator \
 	projects/can-telemetry-node \
-	projects/motor-condition-monitor
+	projects/motor-condition-monitor \
+	projects/resilient-flash-journal
 
-.PHONY: all test clean run-bms run-ota run-can run-motor
+.PHONY: all test clean run-bms run-ota run-can run-motor run-journal
 
 all:
 	@for project in $(PROJECTS); do $(MAKE) -C $$project all; done
@@ -26,3 +27,6 @@ run-can:
 
 run-motor:
 	@$(MAKE) -C projects/motor-condition-monitor run
+
+run-journal:
+	@$(MAKE) -C projects/resilient-flash-journal run

@@ -15,6 +15,7 @@ problems that show up in production teams.
 - Reliability and upgrade strategy through an A/B OTA bootloader model
 - Bus communication literacy through a CAN telemetry scheduler
 - Embedded diagnostics and fixed-point friendly DSP through a motor monitor
+- Power-fail-safe persistence through a wear-aware flash journal
 - Repeatability through `make test` and a GitHub Actions CI pipeline
 
 ## System Map
@@ -25,10 +26,12 @@ flowchart LR
     Host --> OTA[OTA Bootloader Simulator]
     Host --> CAN[CAN Telemetry Node]
     Host --> MCM[Motor Condition Monitor]
+    Host --> RFJ[Resilient Flash Journal]
     BMS --> Safety[Fault Detection and SoC]
     OTA --> Reliability[CRC32, Trial Boot, Rollback]
     CAN --> VehicleBus[Periodic and Fault CAN Frames]
     MCM --> Predictive[Window Features and Fault Events]
+    RFJ --> Persistence[Recovery Scan and Wear Tracking]
 ```
 
 ## Projects
@@ -39,6 +42,7 @@ flowchart LR
 | `ota-bootloader-simulator` | A/B staging, CRC32, confirm, rollback | `make run-ota` | [Architecture](projects/ota-bootloader-simulator/docs/ARCHITECTURE.md) |
 | `can-telemetry-node` | CAN scheduling, fault priority, frame packing | `make run-can` | [Architecture](projects/can-telemetry-node/docs/ARCHITECTURE.md) |
 | `motor-condition-monitor` | Windowed vibration analysis, fault classification, event log | `make run-motor` | [Architecture](projects/motor-condition-monitor/docs/ARCHITECTURE.md) |
+| `resilient-flash-journal` | Crash-safe event persistence, replay, wear tracking | `make run-journal` | [Architecture](projects/resilient-flash-journal/docs/ARCHITECTURE.md) |
 
 ## Recorded Demo Snapshots
 
@@ -82,6 +86,16 @@ phase=bearing fault=BEARING_WEAR sev=WARNING rms=740 p2p=2300 jerk=1262 current=
 phase=stall fault=STALL sev=CRITICAL rms=39 p2p=120 jerk=18 current=9800 temp=44.0C events=3
 ```
 
+### Resilient Flash Journal
+
+```text
+boot_a valid=3 latest_seq=2 latest_type=OVERCURRENT erase=[0 0 0]
+boot_b valid=9 latest_seq=11 latest_type=CONFIG_CHANGE erase=[1 0 0]
+tail seq=9 type=WATCHDOG_RESET sev=WARNING value=1
+tail seq=10 type=POWER_FAIL sev=CRITICAL value=1
+tail seq=11 type=CONFIG_CHANGE sev=INFO value=7
+```
+
 ## Build
 
 Build and test everything:
@@ -98,6 +112,7 @@ make run-bms
 make run-ota
 make run-can
 make run-motor
+make run-journal
 ```
 
 ## Why This Set Works on GitHub
@@ -112,6 +127,7 @@ make run-motor
 - Port the OTA simulator to Zephyr or MCUboot integration tests
 - Bridge the CAN node to Linux `vcan` or a real MCP2515 transceiver
 - Port the motor monitor to an accelerometer + DMA ADC capture chain on STM32
+- Port the flash journal to real NOR/QSPI flash with brownout-triggered flush
 
 ## References
 
