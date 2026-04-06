@@ -1,0 +1,30 @@
+# Portfolio Roadmap
+
+## Phase 1
+
+- Establish three host-buildable embedded projects
+- Add deterministic demos and unit tests
+- Keep dependencies near zero
+
+## Phase 2
+
+- Add GitHub Actions for build and test
+- Split projects into separate repositories if desired
+- Add architecture diagrams and protocol notes
+
+## Phase 3
+
+- Port at least one project to real hardware
+- Add hardware abstraction layers and board configs
+- Publish demo videos and annotated screenshots
+
+## Target Outcome
+
+By the end of phase 3, the portfolio should show:
+
+- Clean C code
+- Tests and repeatable builds
+- Safety and reliability thinking
+- Communication protocol literacy
+- A migration path from simulation to physical boards
+
