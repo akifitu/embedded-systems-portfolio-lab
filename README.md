@@ -29,6 +29,7 @@ problems that show up in production teams.
 - Boot-chain security through a secure boot manifest verifier
 - Automotive diagnostics through a UDS session and security-access node
 - HMI sensing through a capacitive touch keypad controller
+- Timing discipline through a GPSDO holdover controller
 - Repeatability through `make test` and a GitHub Actions CI pipeline
 
 ## System Map
@@ -53,6 +54,7 @@ flowchart LR
     Host --> SBV[Secure Boot Manifest Verifier]
     Host --> UDS[UDS Diagnostic Node]
     Host --> TOUCH[Capacitive Touch Keypad]
+    Host --> GPSDO[GPSDO Holdover Controller]
     BMS --> Safety[Fault Detection and SoC]
     OTA --> Reliability[CRC32, Trial Boot, Rollback]
     CAN --> VehicleBus[Periodic and Fault CAN Frames]
@@ -71,6 +73,7 @@ flowchart LR
     SBV --> Chain[Image Hash, HMAC, and Anti-Rollback]
     UDS --> Diag[Sessions, DID Reads, DTCs, and NRC Handling]
     TOUCH --> HMI[Baseline Tracking, Debounce, and Moisture Guard]
+    GPSDO --> Timing2[PPS Lock, Drift Model, and Holdover]
 ```
 
 ## Projects
@@ -95,6 +98,7 @@ flowchart LR
 | `secure-boot-manifest-verifier` | Image hash, HMAC auth, anti-rollback, recovery fallback | `make run-sboot` | [Architecture](projects/secure-boot-manifest-verifier/docs/ARCHITECTURE.md) |
 | `uds-diagnostic-node` | Session control, security access, DID reads, DTC services | `make run-uds` | [Architecture](projects/uds-diagnostic-node/docs/ARCHITECTURE.md) |
 | `capacitive-touch-keypad-controller` | Baseline tracking, debounce, hold/combo events, moisture rejection | `make run-touch` | [Architecture](projects/capacitive-touch-keypad-controller/docs/ARCHITECTURE.md) |
+| `gpsdo-holdover-controller` | PPS lock, DAC trim discipline, temperature-based holdover | `make run-gpsdo` | [Architecture](projects/gpsdo-holdover-controller/docs/ARCHITECTURE.md) |
 
 ## Recorded Demo Snapshots
 
@@ -288,6 +292,17 @@ phase=moisture active=NONE event=NONE moisture=WET faults=moisture baselines=100
 phase=recovery active=NONE event=TAP_DOWN moisture=DRY faults=none baselines=1000/1004/998/1002
 ```
 
+### GPSDO Holdover Controller
+
+```text
+phase=warmup state=ACQUIRE trim=2041 phase=180ns temp=24.0C pps=YES uncertainty=0ns quality=SEARCH
+phase=locked state=TRACKING trim=2038 phase=12ns temp=24.2C pps=YES uncertainty=0ns quality=LOCKED
+phase=holdover_30s state=HOLDOVER trim=2058 phase=28ns temp=26.0C pps=NO uncertainty=95ns quality=HOLDOVER
+phase=holdover_2m state=HOLDOVER trim=2060 phase=74ns temp=27.5C pps=NO uncertainty=410ns quality=HOLDOVER
+phase=relock state=TRACKING trim=2055 phase=6ns temp=25.0C pps=YES uncertainty=0ns quality=LOCKED
+phase=bad_pps state=FAULT trim=2048 phase=8500ns temp=25.0C pps=YES uncertainty=0ns quality=FAULT
+```
+
 ## Build
 
 Build and test everything:
@@ -318,6 +333,7 @@ make run-sequencer
 make run-sboot
 make run-uds
 make run-touch
+make run-gpsdo
 ```
 
 ## Why This Set Works on GitHub
@@ -346,6 +362,7 @@ make run-touch
 - Port the secure boot verifier to MCUboot-style ROM or first-stage bootloader firmware with OTP-backed counters
 - Port the UDS node to CAN ISO-TP on STM32 or an automotive MCU with real DID and DTC storage
 - Port the touch keypad to STM32 TSC, Microchip PTC, or ESP32 touch peripherals with real electrode layouts
+- Port the GPSDO controller to an STM32 or RP2040 with PPS capture, DAC trim output, and ovenized oscillator telemetry
 
 ## References
 

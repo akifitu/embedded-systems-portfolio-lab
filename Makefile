@@ -16,9 +16,10 @@ PROJECTS := \
 	projects/multi-rail-power-sequencer \
 	projects/secure-boot-manifest-verifier \
 	projects/uds-diagnostic-node \
-	projects/capacitive-touch-keypad-controller
+	projects/capacitive-touch-keypad-controller \
+	projects/gpsdo-holdover-controller
 
-.PHONY: all test clean run-bms run-ota run-can run-motor run-journal run-power run-modbus run-attest run-rtos run-imu run-reflow run-pd run-stepper run-bldc run-sequencer run-sboot run-uds run-touch
+.PHONY: all test clean run-bms run-ota run-can run-motor run-journal run-power run-modbus run-attest run-rtos run-imu run-reflow run-pd run-stepper run-bldc run-sequencer run-sboot run-uds run-touch run-gpsdo
 
 all:
 	@for project in $(PROJECTS); do $(MAKE) -C $$project all; done
@@ -82,3 +83,6 @@ run-uds:
 
 run-touch:
 	@$(MAKE) -C projects/capacitive-touch-keypad-controller run
+
+run-gpsdo:
+	@$(MAKE) -C projects/gpsdo-holdover-controller run

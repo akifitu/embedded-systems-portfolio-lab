@@ -18,6 +18,7 @@
 - Add a sixteenth boot-security project with manifest verification and recovery fallback
 - Add a seventeenth automotive-diagnostics project with UDS session and security handling
 - Add an eighteenth HMI project with capacitive touch filtering and moisture rejection
+- Add a nineteenth timing-control project with GPSDO lock and holdover behavior
 - Add deterministic demos and unit tests
 - Keep dependencies near zero
 
