@@ -38,6 +38,7 @@ problems that show up in production teams.
 - Backup-power orchestration through a diesel generator autostart controller
 - Railway warning control through a grade-crossing controller
 - Building life-safety logic through a fire panel loop controller
+- Medical-device dosing safety through an infusion pump controller
 - Repeatability through `make test` and a GitHub Actions CI pipeline
 
 ## System Map
@@ -71,6 +72,7 @@ flowchart LR
     Host --> GEN[Diesel Generator Autostart Controller]
     Host --> XING[Railway Grade Crossing Controller]
     Host --> FIRE[Fire Panel Loop Controller]
+    Host --> INFUSE[Infusion Pump Safety Controller]
     BMS --> Safety[Fault Detection and SoC]
     OTA --> Reliability[CRC32, Trial Boot, Rollback]
     CAN --> VehicleBus[Periodic and Fault CAN Frames]
@@ -98,6 +100,7 @@ flowchart LR
     GEN --> Backup[Utility Loss, Crank Retry, Warmup, and Cooldown]
     XING --> Rail[Approach Warning, Gate Motion, and Lamp Fault Lockout]
     FIRE --> LifeSafety[Smoke Verify, NAC Silence, and Trouble Latching]
+    INFUSE --> MedDevice[Occlusion Alarms, KVO, and Therapy Reset]
 ```
 
 ## Projects
@@ -131,6 +134,7 @@ flowchart LR
 | `diesel-generator-autostart-controller` | Utility-loss autostart, crank retry, low-oil fault, cooldown stop | `make run-gen` | [Architecture](projects/diesel-generator-autostart-controller/docs/ARCHITECTURE.md) |
 | `railway-grade-crossing-controller` | Approach warning, gate sequencing, lamp fault and gate-timeout lockout | `make run-crossing` | [Architecture](projects/railway-grade-crossing-controller/docs/ARCHITECTURE.md) |
 | `fire-panel-loop-controller` | Smoke verification, NAC silence, manual-pull alarm, and supervised-loop trouble latching | `make run-fire` | [Architecture](projects/fire-panel-loop-controller/docs/ARCHITECTURE.md) |
+| `infusion-pump-safety-controller` | Priming, infusion, KVO fallback, and occlusion or air-in-line alarm shutdown | `make run-infusion` | [Architecture](projects/infusion-pump-safety-controller/docs/ARCHITECTURE.md) |
 
 ## Recorded Demo Snapshots
 
@@ -431,6 +435,18 @@ phase=trouble_loop state=TROUBLE cmd=LATCH_TROUBLE alarm=NONE trouble=LOOP_OPEN 
 phase=reset_ready state=IDLE cmd=RESET_PANEL alarm=NONE trouble=NONE nac=OFF buzzer=OFF alarm_led=OFF trouble_led=OFF verify=0
 ```
 
+### Infusion Pump Safety Controller
+
+```text
+phase=idle state=IDLE cmd=HOLD_PUMP fault=NONE motor=OFF clamp=CLOSED buzzer=OFF rate=0mLph delivered=0.0mL remaining=24.0mL reservoir=120.0mL pressure=18kPa
+phase=priming state=PRIMING cmd=PRIME_LINE fault=NONE motor=ON clamp=OPEN buzzer=OFF rate=300mLph delivered=0.0mL remaining=24.0mL reservoir=118.5mL pressure=24kPa
+phase=infusing state=INFUSING cmd=RUN_INFUSION fault=NONE motor=ON clamp=OPEN buzzer=OFF rate=120mLph delivered=12.0mL remaining=12.0mL reservoir=106.5mL pressure=42kPa
+phase=paused state=PAUSED cmd=PAUSE_INFUSION fault=NONE motor=OFF clamp=CLOSED buzzer=OFF rate=0mLph delivered=12.0mL remaining=12.0mL reservoir=106.5mL pressure=28kPa
+phase=kvo state=KVO cmd=KEEP_VEIN_OPEN fault=NONE motor=ON clamp=OPEN buzzer=OFF rate=5mLph delivered=24.0mL remaining=0.0mL reservoir=94.5mL pressure=38kPa
+phase=occlusion_alarm state=ALARM cmd=STOP_AND_ALARM fault=OCCLUSION motor=OFF clamp=CLOSED buzzer=ON rate=0mLph delivered=12.0mL remaining=12.0mL reservoir=106.5mL pressure=145kPa
+phase=reset_ready state=IDLE cmd=RESET_PUMP fault=NONE motor=OFF clamp=CLOSED buzzer=OFF rate=0mLph delivered=0.0mL remaining=24.0mL reservoir=106.5mL pressure=20kPa
+```
+
 ## Build
 
 Build and test everything:
@@ -470,6 +486,7 @@ make run-lift
 make run-gen
 make run-crossing
 make run-fire
+make run-infusion
 ```
 
 ## Why This Set Works on GitHub
@@ -507,6 +524,7 @@ make run-fire
 - Port the generator controller to an STM32, AVR, or industrial controller with mains sensing, starter relay drive, oil-pressure input, and ATS interlock feedback
 - Port the grade-crossing controller to a safety MCU or PLC with track-circuit inputs, flasher drivers, bell output, and barrier position sensing
 - Port the fire panel controller to an STM32 or panel MCU with supervised IDC/NAC loops, smoke detectors, pull stations, horn/strobe drivers, and annunciator feedback
+- Port the infusion pump controller to an STM32, MSP430, or NXP medical MCU with motor drive, pressure sensor ADC, air-in-line detector, door interlock, and clamp feedback
 
 ## References
 
