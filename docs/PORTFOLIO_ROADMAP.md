@@ -22,6 +22,7 @@
 - Add a twentieth autonomous-flight project with geofence, link-loss, and return-to-home failsafe logic
 - Add a twenty-first grid-interconnect project with anti-islanding protection and export derating
 - Add a twenty-second chassis-control project with wheel-slip ABS regulation and valve modulation
+- Add a twenty-third EV-infrastructure project with control-pilot decode, GFCI trips, and charge-port lockout
 - Add deterministic demos and unit tests
 - Keep dependencies near zero
 

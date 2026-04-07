@@ -33,6 +33,7 @@ problems that show up in production teams.
 - Autonomous recovery logic through a UAV failsafe controller
 - Grid-interconnect protection through an inverter guard controller
 - Chassis slip control through an ABS brake controller
+- EV charge-port sequencing through an EVSE controller
 - Repeatability through `make test` and a GitHub Actions CI pipeline
 
 ## System Map
@@ -61,6 +62,7 @@ flowchart LR
     Host --> UAV[UAV Failsafe Controller]
     Host --> INV[Grid-Tie Inverter Guard]
     Host --> ABS[Wheel-Slip ABS Controller]
+    Host --> EVSE[EVSE Charge Port Controller]
     BMS --> Safety[Fault Detection and SoC]
     OTA --> Reliability[CRC32, Trial Boot, Rollback]
     CAN --> VehicleBus[Periodic and Fault CAN Frames]
@@ -83,6 +85,7 @@ flowchart LR
     UAV --> Flight[Geofence, Link Loss, RTL, and Landing]
     INV --> GridPower[Anti-Islanding, Sync, and Thermal Derating]
     ABS --> Chassis[Slip Control, Valve Modulation, and Fault Detection]
+    EVSE --> Charging[Control Pilot, GFCI, Contactor, and Derating]
 ```
 
 ## Projects
@@ -111,6 +114,7 @@ flowchart LR
 | `uav-failsafe-controller` | Geofence monitoring, link-loss handling, RTL and emergency landing | `make run-uav` | [Architecture](projects/uav-failsafe-controller/docs/ARCHITECTURE.md) |
 | `grid-tie-inverter-guard` | Grid sync, anti-islanding trips, cooldown, thermal export derating | `make run-inverter` | [Architecture](projects/grid-tie-inverter-guard/docs/ARCHITECTURE.md) |
 | `wheel-slip-abs-controller` | Slip estimation, hydraulic valve modulation, wheel-sensor fault handling | `make run-abs` | [Architecture](projects/wheel-slip-abs-controller/docs/ARCHITECTURE.md) |
+| `evse-charge-port-controller` | Pilot-state decode, current advertisement, GFCI trip, cooldown recovery | `make run-evse` | [Architecture](projects/evse-charge-port-controller/docs/ARCHITECTURE.md) |
 
 ## Recorded Demo Snapshots
 
@@ -349,6 +353,19 @@ phase=sensor_fault state=FAULT pump=OFF brake=68 veh=52.0 slip=0/0/0/0 valves=HO
 phase=recovery state=STANDBY pump=OFF brake=0 veh=0.0 slip=0/0/0/0 valves=HOLD/HOLD/HOLD/HOLD fault=NONE
 ```
 
+### EVSE Charge Port Controller
+
+```text
+phase=idle state=IDLE cmd=OPEN_CONTACTOR pilot=A limit=0.0A cool=0 contactor=OPEN fault=NONE
+phase=plugged state=CONNECTED cmd=ADVERTISE_CURRENT pilot=B limit=32.0A cool=0 contactor=OPEN fault=NONE
+phase=arming state=ARMING cmd=CLOSE_CONTACTOR pilot=C limit=32.0A cool=0 contactor=OPEN fault=NONE
+phase=charging state=CHARGING cmd=ENERGIZE_PORT pilot=C limit=32.0A cool=0 contactor=CLOSED fault=NONE
+phase=thermal_derate state=CHARGING cmd=ENERGIZE_PORT pilot=C limit=18.0A cool=0 contactor=CLOSED fault=NONE
+phase=gfci_trip state=FAULT cmd=OPEN_CONTACTOR pilot=C limit=0.0A cool=3 contactor=OPEN fault=GFCI
+phase=cooldown state=COOLDOWN cmd=HOLD_COOLDOWN pilot=B limit=0.0A cool=3 contactor=OPEN fault=GFCI
+phase=recover state=CHARGING cmd=ENERGIZE_PORT pilot=C limit=32.0A cool=0 contactor=CLOSED fault=NONE
+```
+
 ## Build
 
 Build and test everything:
@@ -383,6 +400,7 @@ make run-gpsdo
 make run-uav
 make run-inverter
 make run-abs
+make run-evse
 ```
 
 ## Why This Set Works on GitHub
@@ -415,6 +433,7 @@ make run-abs
 - Port the UAV failsafe controller to an STM32 or PX4-class autopilot with GPS, RC RSSI, barometer, and battery telemetry
 - Port the inverter guard to an STM32, dsPIC, or C2000 control board with PLL sensing, relay feedback, and gate-driver telemetry
 - Port the ABS controller to an automotive MCU with wheel-speed capture, valve drivers, pressure sensors, and pump current monitoring
+- Port the EVSE controller to an STM32 or NXP charger MCU with CP/PP ADC capture, GFCI input, contactor drivers, and lock actuator feedback
 
 ## References
 

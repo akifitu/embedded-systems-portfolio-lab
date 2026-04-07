@@ -20,9 +20,10 @@ PROJECTS := \
 	projects/gpsdo-holdover-controller \
 	projects/uav-failsafe-controller \
 	projects/grid-tie-inverter-guard \
-	projects/wheel-slip-abs-controller
+	projects/wheel-slip-abs-controller \
+	projects/evse-charge-port-controller
 
-.PHONY: all test clean run-bms run-ota run-can run-motor run-journal run-power run-modbus run-attest run-rtos run-imu run-reflow run-pd run-stepper run-bldc run-sequencer run-sboot run-uds run-touch run-gpsdo run-uav run-inverter run-abs
+.PHONY: all test clean run-bms run-ota run-can run-motor run-journal run-power run-modbus run-attest run-rtos run-imu run-reflow run-pd run-stepper run-bldc run-sequencer run-sboot run-uds run-touch run-gpsdo run-uav run-inverter run-abs run-evse
 
 all:
 	@for project in $(PROJECTS); do $(MAKE) -C $$project all; done
@@ -98,3 +99,6 @@ run-inverter:
 
 run-abs:
 	@$(MAKE) -C projects/wheel-slip-abs-controller run
+
+run-evse:
+	@$(MAKE) -C projects/evse-charge-port-controller run
