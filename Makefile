@@ -17,9 +17,10 @@ PROJECTS := \
 	projects/secure-boot-manifest-verifier \
 	projects/uds-diagnostic-node \
 	projects/capacitive-touch-keypad-controller \
-	projects/gpsdo-holdover-controller
+	projects/gpsdo-holdover-controller \
+	projects/uav-failsafe-controller
 
-.PHONY: all test clean run-bms run-ota run-can run-motor run-journal run-power run-modbus run-attest run-rtos run-imu run-reflow run-pd run-stepper run-bldc run-sequencer run-sboot run-uds run-touch run-gpsdo
+.PHONY: all test clean run-bms run-ota run-can run-motor run-journal run-power run-modbus run-attest run-rtos run-imu run-reflow run-pd run-stepper run-bldc run-sequencer run-sboot run-uds run-touch run-gpsdo run-uav
 
 all:
 	@for project in $(PROJECTS); do $(MAKE) -C $$project all; done
@@ -86,3 +87,6 @@ run-touch:
 
 run-gpsdo:
 	@$(MAKE) -C projects/gpsdo-holdover-controller run
+
+run-uav:
+	@$(MAKE) -C projects/uav-failsafe-controller run

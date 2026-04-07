@@ -30,6 +30,7 @@ problems that show up in production teams.
 - Automotive diagnostics through a UDS session and security-access node
 - HMI sensing through a capacitive touch keypad controller
 - Timing discipline through a GPSDO holdover controller
+- Autonomous recovery logic through a UAV failsafe controller
 - Repeatability through `make test` and a GitHub Actions CI pipeline
 
 ## System Map
@@ -55,6 +56,7 @@ flowchart LR
     Host --> UDS[UDS Diagnostic Node]
     Host --> TOUCH[Capacitive Touch Keypad]
     Host --> GPSDO[GPSDO Holdover Controller]
+    Host --> UAV[UAV Failsafe Controller]
     BMS --> Safety[Fault Detection and SoC]
     OTA --> Reliability[CRC32, Trial Boot, Rollback]
     CAN --> VehicleBus[Periodic and Fault CAN Frames]
@@ -74,6 +76,7 @@ flowchart LR
     UDS --> Diag[Sessions, DID Reads, DTCs, and NRC Handling]
     TOUCH --> HMI[Baseline Tracking, Debounce, and Moisture Guard]
     GPSDO --> Timing2[PPS Lock, Drift Model, and Holdover]
+    UAV --> Flight[Geofence, Link Loss, RTL, and Landing]
 ```
 
 ## Projects
@@ -99,6 +102,7 @@ flowchart LR
 | `uds-diagnostic-node` | Session control, security access, DID reads, DTC services | `make run-uds` | [Architecture](projects/uds-diagnostic-node/docs/ARCHITECTURE.md) |
 | `capacitive-touch-keypad-controller` | Baseline tracking, debounce, hold/combo events, moisture rejection | `make run-touch` | [Architecture](projects/capacitive-touch-keypad-controller/docs/ARCHITECTURE.md) |
 | `gpsdo-holdover-controller` | PPS lock, DAC trim discipline, temperature-based holdover | `make run-gpsdo` | [Architecture](projects/gpsdo-holdover-controller/docs/ARCHITECTURE.md) |
+| `uav-failsafe-controller` | Geofence monitoring, link-loss handling, RTL and emergency landing | `make run-uav` | [Architecture](projects/uav-failsafe-controller/docs/ARCHITECTURE.md) |
 
 ## Recorded Demo Snapshots
 
@@ -303,6 +307,17 @@ phase=relock state=TRACKING trim=2055 phase=6ns temp=25.0C pps=YES uncertainty=0
 phase=bad_pps state=FAULT trim=2048 phase=8500ns temp=25.0C pps=YES uncertainty=0ns quality=FAULT
 ```
 
+### UAV Failsafe Controller
+
+```text
+phase=launch state=MISSION cmd=PROCEED reason=NONE battery=92 reserve=73 budget=19 link=0 fence=IN health=GREEN
+phase=geofence state=RTL cmd=RETURN_HOME reason=GEOFENCE battery=78 reserve=36 budget=42 link=0 fence=OUT health=YELLOW
+phase=link_loss state=RTL cmd=RETURN_HOME reason=LINK_LOSS battery=68 reserve=38 budget=30 link=3 fence=IN health=YELLOW
+phase=nav_loss state=LAND cmd=DESCEND reason=NAV_LOSS battery=61 reserve=33 budget=28 link=2 fence=IN health=RED
+phase=critical_battery state=LAND cmd=DESCEND reason=CRITICAL_BATTERY battery=9 reserve=0 budget=16 link=0 fence=IN health=RED
+phase=touchdown state=DISARMED cmd=CUT_MOTORS reason=NONE battery=8 reserve=0 budget=14 link=0 fence=IN health=RED
+```
+
 ## Build
 
 Build and test everything:
@@ -334,6 +349,7 @@ make run-sboot
 make run-uds
 make run-touch
 make run-gpsdo
+make run-uav
 ```
 
 ## Why This Set Works on GitHub
@@ -363,6 +379,7 @@ make run-gpsdo
 - Port the UDS node to CAN ISO-TP on STM32 or an automotive MCU with real DID and DTC storage
 - Port the touch keypad to STM32 TSC, Microchip PTC, or ESP32 touch peripherals with real electrode layouts
 - Port the GPSDO controller to an STM32 or RP2040 with PPS capture, DAC trim output, and ovenized oscillator telemetry
+- Port the UAV failsafe controller to an STM32 or PX4-class autopilot with GPS, RC RSSI, barometer, and battery telemetry
 
 ## References
 
