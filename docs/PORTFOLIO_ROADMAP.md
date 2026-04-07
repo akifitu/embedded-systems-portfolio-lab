@@ -23,6 +23,7 @@
 - Add a twenty-first grid-interconnect project with anti-islanding protection and export derating
 - Add a twenty-second chassis-control project with wheel-slip ABS regulation and valve modulation
 - Add a twenty-third EV-infrastructure project with control-pilot decode, GFCI trips, and charge-port lockout
+- Add a twenty-fourth fluid-control project with dual-pump alternation, high-high assist, and wet-well fault handling
 - Add deterministic demos and unit tests
 - Keep dependencies near zero
 

@@ -34,6 +34,7 @@ problems that show up in production teams.
 - Grid-interconnect protection through an inverter guard controller
 - Chassis slip control through an ABS brake controller
 - EV charge-port sequencing through an EVSE controller
+- Fluid-process automation through a dual-pump lift-station controller
 - Repeatability through `make test` and a GitHub Actions CI pipeline
 
 ## System Map
@@ -63,6 +64,7 @@ flowchart LR
     Host --> INV[Grid-Tie Inverter Guard]
     Host --> ABS[Wheel-Slip ABS Controller]
     Host --> EVSE[EVSE Charge Port Controller]
+    Host --> LIFT[Dual-Pump Lift Station Controller]
     BMS --> Safety[Fault Detection and SoC]
     OTA --> Reliability[CRC32, Trial Boot, Rollback]
     CAN --> VehicleBus[Periodic and Fault CAN Frames]
@@ -86,6 +88,7 @@ flowchart LR
     INV --> GridPower[Anti-Islanding, Sync, and Thermal Derating]
     ABS --> Chassis[Slip Control, Valve Modulation, and Fault Detection]
     EVSE --> Charging[Control Pilot, GFCI, Contactor, and Derating]
+    LIFT --> Water[Lead-Lag Pumps, Wet-Well Level, and Overflow Protection]
 ```
 
 ## Projects
@@ -115,6 +118,7 @@ flowchart LR
 | `grid-tie-inverter-guard` | Grid sync, anti-islanding trips, cooldown, thermal export derating | `make run-inverter` | [Architecture](projects/grid-tie-inverter-guard/docs/ARCHITECTURE.md) |
 | `wheel-slip-abs-controller` | Slip estimation, hydraulic valve modulation, wheel-sensor fault handling | `make run-abs` | [Architecture](projects/wheel-slip-abs-controller/docs/ARCHITECTURE.md) |
 | `evse-charge-port-controller` | Pilot-state decode, current advertisement, GFCI trip, cooldown recovery | `make run-evse` | [Architecture](projects/evse-charge-port-controller/docs/ARCHITECTURE.md) |
+| `dual-pump-lift-station-controller` | Lead-lag alternation, high-high assist, seal fault lockout | `make run-lift` | [Architecture](projects/dual-pump-lift-station-controller/docs/ARCHITECTURE.md) |
 
 ## Recorded Demo Snapshots
 
@@ -366,6 +370,18 @@ phase=cooldown state=COOLDOWN cmd=HOLD_COOLDOWN pilot=B limit=0.0A cool=3 contac
 phase=recover state=CHARGING cmd=ENERGIZE_PORT pilot=C limit=32.0A cool=0 contactor=CLOSED fault=NONE
 ```
 
+### Dual-Pump Lift Station Controller
+
+```text
+phase=idle state=IDLE cmd=STOP_ALL lead=A level=28 inflow=40 ready=AB fault=NONE
+phase=start_a state=DRAIN_LEAD cmd=RUN_A lead=A level=72 inflow=120 ready=AB fault=NONE
+phase=assist_b state=DRAIN_ASSIST cmd=RUN_BOTH lead=A level=91 inflow=180 ready=AB fault=NONE
+phase=cycle_swap state=IDLE cmd=STOP_ALL lead=B level=30 inflow=35 ready=AB fault=NONE
+phase=single_backup state=DRAIN_LEAD cmd=RUN_B lead=B level=70 inflow=110 ready=B fault=NONE
+phase=seal_fault state=FAULT cmd=STOP_ALL lead=B level=68 inflow=100 ready=AB fault=PUMP_B_SEAL
+phase=recovered state=IDLE cmd=STOP_ALL lead=B level=24 inflow=20 ready=AB fault=NONE
+```
+
 ## Build
 
 Build and test everything:
@@ -401,6 +417,7 @@ make run-uav
 make run-inverter
 make run-abs
 make run-evse
+make run-lift
 ```
 
 ## Why This Set Works on GitHub
@@ -434,6 +451,7 @@ make run-evse
 - Port the inverter guard to an STM32, dsPIC, or C2000 control board with PLL sensing, relay feedback, and gate-driver telemetry
 - Port the ABS controller to an automotive MCU with wheel-speed capture, valve drivers, pressure sensors, and pump current monitoring
 - Port the EVSE controller to an STM32 or NXP charger MCU with CP/PP ADC capture, GFCI input, contactor drivers, and lock actuator feedback
+- Port the lift-station controller to an STM32 or PLC-class MCU with ultrasonic level sensing, pump contactors, seal-fail inputs, and overflow alarms
 
 ## References
 
