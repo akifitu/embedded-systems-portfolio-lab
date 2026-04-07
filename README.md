@@ -1,13 +1,26 @@
-# Embedded Systems Portfolio Lab
+# Embedded Systems Collection
 
-[![CI](https://github.com/akifitu/embedded-systems-portfolio-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/akifitu/embedded-systems-portfolio-lab/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-0f766e.svg)](LICENSE)
-[![Language: C](https://img.shields.io/badge/language-C-1d4ed8.svg)](https://en.wikipedia.org/wiki/C_(programming_language))
+<p align="center">
+  <img src="./docs/assets/cover.svg" alt="Embedded Systems Collection cover" width="100%" />
+</p>
+
+<p align="center">
+  <img src="https://github.com/akifitu/embedded-systems-collection/actions/workflows/ci.yml/badge.svg" alt="CI" />
+  <img src="https://img.shields.io/badge/license-MIT-0f766e.svg?style=for-the-badge" alt="MIT License" />
+  <img src="https://img.shields.io/badge/language-C-1d4ed8.svg?style=for-the-badge" alt="C language" />
+  <img src="https://img.shields.io/badge/host_buildable-f59e0b?style=for-the-badge" alt="Host buildable" />
+</p>
 
 This repository is an embedded-systems portfolio designed to look credible on
 GitHub before any real board is connected. The code is written in portable C,
 builds on the host with a standard compiler, and models the kind of firmware
 problems that show up in production teams.
+
+## Demo Preview
+
+<p align="center">
+  <img src="./docs/assets/demo.svg" alt="Embedded Systems Collection demo animation" width="100%" />
+</p>
 
 ## Portfolio Signal
 

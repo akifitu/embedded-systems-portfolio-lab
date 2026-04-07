@@ -1,0 +1,27 @@
+<svg width="1200" height="600" viewBox="0 0 1200 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="600" rx="24" fill="#081223"/>
+  <rect x="28" y="28" width="1144" height="544" rx="20" fill="#0F172A" stroke="#334155"/>
+  <text x="64" y="86" fill="#F8FAFC" font-size="34" font-weight="700" font-family="Segoe UI, Arial, sans-serif">FIRMWARE PORTFOLIO</text>
+  <text x="64" y="124" fill="#94A3B8" font-size="20" font-family="Segoe UI, Arial, sans-serif">Host-buildable C projects with hardware-flavored logic and repeatable demos.</text>
+  <g stroke="#F59E0B" stroke-width="6" stroke-linecap="round">
+    <path d="M660 180H1140"/>
+    <path d="M728 180V312H1140"/>
+    <path d="M804 180V268H1140"/>
+    <path d="M882 180V356H1140"/>
+    <path d="M960 180V222H1140"/>
+  </g>
+  <circle cx="728" cy="312" r="24" fill="#2563EB">
+    <animate attributeName="fill" values="#2563EB;#14B8A6;#2563EB" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="882" cy="356" r="20" fill="#14B8A6">
+    <animate attributeName="fill" values="#14B8A6;#F59E0B;#14B8A6" dur="3s" begin="0.5s" repeatCount="indefinite"/>
+  </circle>
+  <g font-family="Consolas, Menlo, monospace" font-size="22" font-weight="700">
+    <rect x="72" y="190" width="280" height="92" rx="18" fill="#0B1220" stroke="#334155"/>
+    <text x="98" y="244" fill="#E2E8F0">BMS  SOC 72  TEMP 38</text>
+    <rect x="72" y="314" width="280" height="92" rx="18" fill="#0B1220" stroke="#334155"/>
+    <text x="98" y="368" fill="#E2E8F0">OTA  SLOT B  CRC OK</text>
+    <rect x="72" y="438" width="280" height="92" rx="18" fill="#0B1220" stroke="#334155"/>
+    <text x="98" y="492" fill="#E2E8F0">CAN  ID 180  FAULT 0</text>
+  </g>
+</svg>
