@@ -32,9 +32,10 @@ PROJECTS := \
 	projects/gas-burner-flame-safeguard-controller \
 	projects/wind-turbine-pitch-safety-controller \
 	projects/ventilator-breath-cycle-controller \
-	projects/solar-mppt-charge-controller
+	projects/solar-mppt-charge-controller \
+	projects/battery-swap-dock-controller
 
-.PHONY: all test clean run-bms run-ota run-can run-motor run-journal run-power run-modbus run-attest run-rtos run-imu run-reflow run-pd run-stepper run-bldc run-sequencer run-sboot run-uds run-touch run-gpsdo run-uav run-inverter run-abs run-evse run-lift run-gen run-crossing run-fire run-infusion run-elevator run-sat-eps run-burner run-wind run-vent run-solar
+.PHONY: all test clean run-bms run-ota run-can run-motor run-journal run-power run-modbus run-attest run-rtos run-imu run-reflow run-pd run-stepper run-bldc run-sequencer run-sboot run-uds run-touch run-gpsdo run-uav run-inverter run-abs run-evse run-lift run-gen run-crossing run-fire run-infusion run-elevator run-sat-eps run-burner run-wind run-vent run-solar run-swap
 
 all:
 	@for project in $(PROJECTS); do $(MAKE) -C $$project all; done
@@ -146,3 +147,6 @@ run-vent:
 
 run-solar:
 	@$(MAKE) -C projects/solar-mppt-charge-controller run
+
+run-swap:
+	@$(MAKE) -C projects/battery-swap-dock-controller run

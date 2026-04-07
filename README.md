@@ -58,6 +58,7 @@ problems that show up in production teams.
 - Renewable-energy shutdown logic through a wind turbine pitch safety controller
 - Respiratory safety logic through a ventilator breath cycle controller
 - Solar power conversion through an MPPT charge controller
+- Modular high-current docking safety through a battery swap dock controller
 - Repeatability through `make test` and a GitHub Actions CI pipeline
 
 ## System Map
@@ -98,6 +99,7 @@ flowchart LR
     Host --> WT[Wind Turbine Pitch Safety Controller]
     Host --> VENT[Ventilator Breath Cycle Controller]
     Host --> SOLAR[Solar MPPT Charge Controller]
+    Host --> SWAP[Battery Swap Dock Controller]
     BMS --> Safety[Fault Detection and SoC]
     OTA --> Reliability[CRC32, Trial Boot, Rollback]
     CAN --> VehicleBus[Periodic and Fault CAN Frames]
@@ -132,6 +134,7 @@ flowchart LR
     WT --> Renewable[Feathering, Storm Hold, and Pitch Fault Lockout]
     VENT --> Respiratory[Backup Breaths, Plateau Hold, and Patient Alarms]
     SOLAR --> PowerConv[MPPT Duty Tracking, Absorb Float, and Thermal Fault Lockout]
+    SWAP --> Docking[Pack Validation, Precharge, Latch, and Safe Release]
 ```
 
 ## Projects
@@ -172,6 +175,7 @@ flowchart LR
 | `wind-turbine-pitch-safety-controller` | Startup release, generating trim, grid-loss feathering, and storm-hold or pitch fault handling | `make run-wind` | [Architecture](projects/wind-turbine-pitch-safety-controller/docs/ARCHITECTURE.md) |
 | `ventilator-breath-cycle-controller` | Patient-triggered inhale, backup breaths, plateau hold, and respiratory alarm handling | `make run-vent` | [Architecture](projects/ventilator-breath-cycle-controller/docs/ARCHITECTURE.md) |
 | `solar-mppt-charge-controller` | Perturb-observe MPPT, bulk or absorb or float charging, and reverse or thermal fault handling | `make run-solar` | [Architecture](projects/solar-mppt-charge-controller/docs/ARCHITECTURE.md) |
+| `battery-swap-dock-controller` | Pack validation, precharge sequencing, dock latch control, and thermal or auth fault lockout | `make run-swap` | [Architecture](projects/battery-swap-dock-controller/docs/ARCHITECTURE.md) |
 
 ## Recorded Demo Snapshots
 
@@ -557,6 +561,18 @@ phase=thermal_fault state=FAULT cmd=LATCH_FAULT fault=OVER_TEMP duty=0 relay=OPE
 phase=reset_ready state=IDLE cmd=RESET_CHARGER fault=NONE duty=0 relay=OPEN fan=OFF stage_target=0mV panel=15.0V 0.8A power=12.0W batt=12.9V temp=31C
 ```
 
+### Battery Swap Dock Controller
+
+```text
+phase=slot_idle state=IDLE cmd=OPEN_DOCK fault=NONE pack=ABSENT latch=OPEN main=OPEN precharge=OFF fan=OFF delta=0mV progress=0
+phase=validate_pack state=VALIDATE cmd=VERIFY_PACK fault=NONE pack=PRESENT latch=OPEN main=OPEN precharge=OFF fan=OFF delta=2200mV progress=25
+phase=precharge_ramp state=PRECHARGE cmd=PRECHARGE_BUS fault=NONE pack=PRESENT latch=CLOSED main=OPEN precharge=ON fan=OFF delta=900mV progress=65
+phase=docked_ready state=DOCKED cmd=CLOSE_MAIN_PATH fault=NONE pack=PRESENT latch=CLOSED main=CLOSED precharge=OFF fan=OFF delta=120mV progress=100
+phase=release_cycle state=RELEASE cmd=RELEASE_PACK fault=NONE pack=PRESENT latch=OPEN main=OPEN precharge=OFF fan=OFF delta=0mV progress=0
+phase=thermal_fault state=FAULT cmd=LATCH_FAULT fault=OVER_TEMP pack=PRESENT latch=OPEN main=OPEN precharge=OFF fan=ON delta=1600mV progress=0
+phase=reset_ready state=IDLE cmd=RESET_DOCK fault=NONE pack=ABSENT latch=OPEN main=OPEN precharge=OFF fan=OFF delta=0mV progress=0
+```
+
 ## Build
 
 Build and test everything:
@@ -603,6 +619,7 @@ make run-burner
 make run-wind
 make run-vent
 make run-solar
+make run-swap
 ```
 
 ## Why This Set Works on GitHub
@@ -647,6 +664,7 @@ make run-solar
 - Port the wind turbine controller to an STM32, C2000, or industrial pitch board with rotor-speed capture, hydraulic-pressure sensing, grid contact feedback, brake relay, and blade encoder inputs
 - Port the ventilator controller to an STM32, NXP, or medical-control board with blower PWM drive, inspiratory and expiratory valve outputs, pressure and flow sensors, and gas-supply supervision
 - Port the solar MPPT controller to an STM32, AVR, or power board with synchronous buck PWM, panel current and voltage ADCs, battery feedback, NTC temperature sensing, and reverse-polarity protection
+- Port the battery swap dock controller to an STM32, NXP, or automotive power board with latch actuators, precharge relays, main contactors, alignment sensing, pack auth transport, and connector temperature telemetry
 
 ## References
 

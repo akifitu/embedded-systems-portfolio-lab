@@ -34,6 +34,7 @@
 - Add a thirty-second renewable-energy project with startup release, feather shutdown, and storm-hold pitch control
 - Add a thirty-third respiratory-support project with pressure-targeted breaths, apnea backup, and patient alarm handling
 - Add a thirty-fourth solar-power project with MPPT duty tracking, bulk or absorb or float charging, and charger fault lockout
+- Add a thirty-fifth battery-swap project with pack validation, precharge sequencing, dock latch control, and safe release handling
 - Add deterministic demos and unit tests
 - Keep dependencies near zero
 
